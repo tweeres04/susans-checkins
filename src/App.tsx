@@ -1,26 +1,50 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Router } from '@reach/router';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import {
+	CssBaseline,
+	Container,
+	AppBar,
+	Toolbar,
+	Typography,
+} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+
+import CheckinForm from './CheckinForm/CheckinForm';
+
+const useStyles = makeStyles((theme) => ({
+	appBarSpacer: theme.mixins.toolbar,
+}));
+
+function Success() {
+	return <p>Thanks for checking in!</p>;
 }
 
-export default App;
+function Symptoms() {
+	return <p>Please stay home and get better.</p>;
+}
+
+export default function App() {
+	const classes = useStyles();
+
+	return (
+		<>
+			<CssBaseline />
+			<Container>
+				<AppBar>
+					<Toolbar>
+						<Typography component="h1" variant="h6">
+							Susans Checkins
+						</Typography>
+					</Toolbar>
+				</AppBar>
+				<div className={classes.appBarSpacer}></div>
+				<Router>
+					<CheckinForm path="/" />
+					<Success path="/success" />
+					<Symptoms path="/symptoms" />
+				</Router>
+			</Container>
+		</>
+	);
+}
