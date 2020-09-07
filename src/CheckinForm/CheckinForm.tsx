@@ -1,6 +1,8 @@
 import React from 'react';
 import { navigate } from '@reach/router';
 
+import firebase from 'firebase/app';
+
 import { Typography, Button, CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Check as CheckIcon } from '@material-ui/icons';
@@ -14,15 +16,19 @@ const useStyles = makeStyles((theme) => ({
 	isSubmittingProgress: { marginLeft: theme.spacing(1) },
 }));
 
-function onSubmit(data) {
-	setTimeout(() => {
-		const hasSymptoms = Object.values(data).some((value) => value === 'yes');
-		if (hasSymptoms) {
-			navigate('/symptoms');
-		} else {
-			return navigate('/success');
-		}
-	}, 1000);
+async function onSubmit(checkin) {
+	const { uid } = firebase.auth().currentUser;
+	const checkinsRef = firebase.firestore().collection(`users/${uid}/checkins`);
+	await checkinsRef.add({
+		checkin,
+		timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+	});
+	const hasSymptoms = Object.values(checkin).some((value) => value === 'yes');
+	if (hasSymptoms) {
+		navigate('/symptoms');
+	} else {
+		return navigate('/success');
+	}
 }
 
 export default function CheckinForm() {
