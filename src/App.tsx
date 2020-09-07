@@ -1,6 +1,9 @@
 import React from 'react';
 import { Router } from '@reach/router';
 
+import firebase from 'firebase/app';
+import { useAuthState } from 'react-firebase-hooks/auth';
+
 import {
 	CssBaseline,
 	Container,
@@ -11,6 +14,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 
 import CheckinForm from './CheckinForm/CheckinForm';
+import Signin from './Signin';
 
 const useStyles = makeStyles((theme) => ({
 	appBarSpacer: theme.mixins.toolbar,
@@ -26,6 +30,7 @@ function Symptoms() {
 
 export default function App() {
 	const classes = useStyles();
+	const [user, loading, error] = useAuthState(firebase.auth());
 
 	return (
 		<>
@@ -39,11 +44,20 @@ export default function App() {
 					</Toolbar>
 				</AppBar>
 				<div className={classes.appBarSpacer}></div>
-				<Router>
-					<CheckinForm path="/" />
-					<Success path="/success" />
-					<Symptoms path="/symptoms" />
-				</Router>
+				{!loading && !error ? (
+					user ? (
+						<Router>
+							<CheckinForm path="/" />
+							<Success path="/success" />
+							<Symptoms path="/symptoms" />
+						</Router>
+					) : (
+						<Signin />
+					)
+				) : null}
+				{error && (
+					<Typography>There was an error signing in. Try again.</Typography>
+				)}
 			</Container>
 		</>
 	);

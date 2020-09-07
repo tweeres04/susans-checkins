@@ -17,6 +17,7 @@
 		"firebaseui": "^4.6.1",
 		"react": "^16.13.1",
 		"react-dom": "^16.13.1",
+		"react-firebase-hooks": "^2.2.0",
 		"react-hook-form": "^6.7.2",
 		"react-scripts": "3.4.3",
 		"typescript": "~3.7.2",
