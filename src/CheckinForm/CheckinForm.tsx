@@ -11,16 +11,19 @@ import { useForm } from 'react-hook-form';
 
 import YesNoRadio from './YesNoRadio';
 
+type Checkin = Record<string, 'yes' | 'no'>;
+
 const useStyles = makeStyles((theme) => ({
 	list: { listStyle: 'none', paddingLeft: 0 },
 	isSubmittingProgress: { marginLeft: theme.spacing(1) },
 }));
 
-async function onSubmit(checkin) {
+async function onSubmit(checkin: Checkin) {
 	const { uid } = firebase.auth().currentUser;
 	const checkinsRef = firebase.firestore().collection(`users/${uid}/checkins`);
 	await checkinsRef.add({
 		checkin,
+		uid,
 		timestamp: firebase.firestore.FieldValue.serverTimestamp(),
 	});
 	const hasSymptoms = Object.values(checkin).some((value) => value === 'yes');
