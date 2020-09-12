@@ -9,11 +9,17 @@ import {
 	FormHelperText,
 } from '@material-ui/core';
 
+const isDev = process.env.NODE_ENV !== 'production';
+
 export default function YesNoRadio({ label, name, register, error }) {
 	return (
 		<FormControl component="fieldset" error={Boolean(error)}>
 			<FormLabel component="span">{label}</FormLabel>
-			<RadioGroup row aria-label={label} defaultValue="no">
+			<RadioGroup
+				row
+				aria-label={label}
+				{...(isDev ? { defaultValue: 'no' } : {})}
+			>
 				<FormControlLabel
 					control={
 						<Radio

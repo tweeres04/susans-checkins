@@ -14,6 +14,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 
 import CheckinForm from './CheckinForm/CheckinForm';
+import Admin from './Admin';
 import Signin from './Signin';
 
 const useStyles = makeStyles((theme) => ({
@@ -50,6 +51,7 @@ export default function App() {
 							<CheckinForm path="/" />
 							<Success path="/success" />
 							<Symptoms path="/symptoms" />
+							<Admin path="/admin" />
 						</Router>
 					) : (
 						<Signin />
