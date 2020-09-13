@@ -32,11 +32,11 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-type PlayerProps = {
+type PlayerViewProps = {
 	playerId: string;
 };
 
-export default function Player({ playerId }: PlayerProps) {
+export default function PlayerView({ playerId }: PlayerViewProps) {
 	const classes = useStyles();
 
 	const { name, dob, notes } = testPlayer;

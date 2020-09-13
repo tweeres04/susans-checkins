@@ -17,7 +17,7 @@ import { makeStyles } from '@material-ui/core/styles';
 const CheckinForm = React.lazy(() => import('./CheckinForm/CheckinForm'));
 const Admin = React.lazy(() => import('./admin/Admin'));
 const Signin = React.lazy(() => import('./Signin'));
-const Player = React.lazy(() => import('./admin/Player.tsx'));
+const Player = React.lazy(() => import('./admin/PlayerView'));
 
 const useStyles = makeStyles((theme) => ({
 	appBarSpacer: theme.mixins.toolbar,

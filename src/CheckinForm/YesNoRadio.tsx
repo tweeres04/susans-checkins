@@ -9,9 +9,22 @@ import {
 	FormHelperText,
 } from '@material-ui/core';
 
+import { UseFormMethods } from 'react-hook-form';
+
 const isDev = process.env.NODE_ENV !== 'production';
 
-export default function YesNoRadio({ label, name, register, error }) {
+type YesNoRadioProps = {
+	label: string;
+	name: string;
+	error: string;
+} & Pick<UseFormMethods, 'register'>;
+
+export default function YesNoRadio({
+	label,
+	name,
+	register,
+	error,
+}: YesNoRadioProps) {
 	return (
 		<FormControl component="fieldset" error={Boolean(error)}>
 			<FormLabel component="span">{label}</FormLabel>
