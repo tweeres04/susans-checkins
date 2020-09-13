@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Router } from '@reach/router';
 
 import firebase from 'firebase/app';
@@ -10,15 +10,22 @@ import {
 	AppBar,
 	Toolbar,
 	Typography,
+	CircularProgress,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
-import CheckinForm from './CheckinForm/CheckinForm';
-import Admin from './Admin';
-import Signin from './Signin';
+const CheckinForm = React.lazy(() => import('./CheckinForm/CheckinForm'));
+const Admin = React.lazy(() => import('./admin/Admin'));
+const Signin = React.lazy(() => import('./Signin'));
+const Player = React.lazy(() => import('./admin/Player.tsx'));
 
 const useStyles = makeStyles((theme) => ({
 	appBarSpacer: theme.mixins.toolbar,
+	progress: {
+		margin: 'auto',
+		display: 'block',
+		marginTop: '10rem',
+	},
 }));
 
 function Success() {
@@ -34,7 +41,9 @@ export default function App() {
 	const [user, loading, error] = useAuthState(firebase.auth());
 
 	return (
-		<>
+		<Suspense
+			fallback={<CircularProgress classes={{ root: classes.progress }} />}
+		>
 			<CssBaseline />
 			<Container>
 				<AppBar>
@@ -51,6 +60,7 @@ export default function App() {
 							<CheckinForm path="/" />
 							<Success path="/success" />
 							<Symptoms path="/symptoms" />
+							<Player path="/admin/:playerId" />
 							<Admin path="/admin" />
 						</Router>
 					) : (
@@ -61,6 +71,6 @@ export default function App() {
 					<Typography>There was an error signing in. Try again.</Typography>
 				)}
 			</Container>
-		</>
+		</Suspense>
 	);
 }
