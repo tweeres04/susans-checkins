@@ -3,4 +3,5 @@ export type Player = {
 	dob: string;
 	notes: string;
 	imageUrl: string;
+	uid: string;
 };

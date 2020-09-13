@@ -1,5 +1,10 @@
 import React from 'react';
 
+import { Link } from '@reach/router';
+
+import firebase from 'firebase/app';
+import { useCollectionDataOnce } from 'react-firebase-hooks/firestore';
+
 import {
 	List,
 	ListItem,
@@ -15,6 +20,7 @@ import random from 'random';
 import generatePlayer from './generatePlayer';
 import generatePracticeDates from './generatePracticeDates';
 import CheckinEntry from './CheckinEntry';
+import { Player } from './player';
 import hasSymptoms from './hasSymptoms';
 
 import generateCheckinEntry from './generateCheckinEntry';
@@ -31,7 +37,7 @@ function generateTestData(): CheckinEntry[] {
 	const data = testPracticeDates.flatMap((d) =>
 		Array.from({ length: 20 }).map(() =>
 			generateCheckinEntry({
-				timestamp: d,
+				timestamp: d as firebase.firestore.Timestamp,
 				player: testPlayers[playerSelector()],
 			})
 		)
@@ -48,41 +54,93 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
+const LinkWithRef = React.forwardRef((props, ref) => (
+	<Link ref={ref} {...props} />
+));
+
 export default function Admin() {
 	const classes = useStyles();
 
+	let [checkins = [], checkinsLoading, checkinsError] = useCollectionDataOnce<
+		CheckinEntry
+	>(
+		firebase
+			.firestore()
+			.collectionGroup('checkins')
+			.orderBy('timestamp', 'desc')
+	);
+
+	const [players = [], playersLoading, playersError] = useCollectionDataOnce<
+		Player
+	>(firebase.firestore().collection('users'), {
+		idField: 'uid',
+	});
+
+	const error = checkinsError || playersError;
+	const loading = playersLoading || checkinsLoading;
+
+	checkins = checkins.map((c) => ({
+		...c,
+		player: players.find((p) => c.uid === p.uid),
+	}));
+
 	return (
-		<List>
-			{testData.map(({ player: { name, imageUrl }, checkin, timestamp }, i) => {
-				const checkinSymptoms = hasSymptoms(checkin);
-				const symptomsPresent = checkinSymptoms.length > 0;
-				return (
-					<ListItem alignItems="flex-start" key={`${name}${timestamp}${i}`}>
-						<ListItemAvatar>
-							<Avatar alt={name} src={imageUrl} />
-						</ListItemAvatar>
-						<ListItemText
-							primary={name}
-							secondary={
-								<>
-									<div>{timestamp.toLocaleString()}</div>
-									<div>
-										{symptomsPresent
-											? `Symptoms: ${checkinSymptoms.join(', ')}`
-											: 'No symptoms'}
-									</div>
-								</>
+		<>
+			{error ? (
+				<>
+					<p>{error.message}</p>
+					<p>{error.stack}</p>
+				</>
+			) : (
+				loading || (
+					<List>
+						{checkins.map(
+							({
+								uid,
+								player: { name = 'Unnamed player', imageUrl } = {},
+								checkin,
+								timestamp,
+							}) => {
+								const checkinSymptoms = hasSymptoms(checkin);
+								const symptomsPresent = checkinSymptoms.length > 0;
+								const timestampDate = timestamp.toDate();
+								return (
+									<ListItem
+										component={LinkWithRef}
+										alignItems="flex-start"
+										key={`${uid}${timestampDate}`}
+										to={`/admin/${uid}`}
+										button
+									>
+										<ListItemAvatar>
+											<Avatar alt={name} src={imageUrl} />
+										</ListItemAvatar>
+										<ListItemText
+											primary={name}
+											secondary={
+												<>
+													<div>{timestampDate.toLocaleString()}</div>
+													<div>
+														{symptomsPresent
+															? `Symptoms: ${checkinSymptoms.join(', ')}`
+															: 'No symptoms'}
+													</div>
+												</>
+											}
+											secondaryTypographyProps={{
+												component: 'div',
+												className: symptomsPresent
+													? classes.symptomsPresent
+													: undefined,
+											}}
+										/>
+									</ListItem>
+								);
 							}
-							secondaryTypographyProps={{
-								component: 'div',
-								className: symptomsPresent
-									? classes.symptomsPresent
-									: undefined,
-							}}
-						/>
-					</ListItem>
-				);
-			})}
-		</List>
+						)}
+					</List>
+				)
+			)}
+		</>
 	);
 }

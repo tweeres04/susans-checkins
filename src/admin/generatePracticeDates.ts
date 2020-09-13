@@ -13,9 +13,10 @@ export default function generatePracticeDates() {
 		end: now,
 	})
 		.filter((d) => isTuesday(d) || isThursday(d))
-		.map((d) =>
-			set(d, { hours: 20, minutes: 30, seconds: 0, milliseconds: 0 })
-		);
+		.map((d) => set(d, { hours: 20, minutes: 30, seconds: 0, milliseconds: 0 }))
+		.map((d) => ({
+			toDate: () => d,
+		}));
 
 	return practiceDates;
 }

@@ -1,4 +1,5 @@
 import random from 'random';
+import firebase from 'firebase/app';
 
 import YesOrNo from './YesOrNo';
 import { Player } from './player';
@@ -13,7 +14,7 @@ export default function generateCheckinEntry({
 	timestamp,
 }: {
 	player: Player;
-	timestamp: Date;
+	timestamp: firebase.firestore.Timestamp;
 }) {
 	return {
 		checkin: {
@@ -33,5 +34,6 @@ export default function generateCheckinEntry({
 		},
 		timestamp,
 		player,
+		uid: 'testId',
 	};
 }
