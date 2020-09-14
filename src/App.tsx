@@ -18,6 +18,7 @@ const CheckinForm = React.lazy(() => import('./CheckinForm/CheckinForm'));
 const Admin = React.lazy(() => import('./admin/Admin'));
 const Signin = React.lazy(() => import('./Signin'));
 const Player = React.lazy(() => import('./admin/PlayerView'));
+const Profile = React.lazy(() => import('./Profile'));
 
 const useStyles = makeStyles((theme) => ({
 	appBarSpacer: theme.mixins.toolbar,
@@ -62,6 +63,7 @@ export default function App() {
 							<Symptoms path="/symptoms" />
 							<Player path="/admin/:playerId" />
 							<Admin path="/admin" />
+							<Profile path="/profile" />
 						</Router>
 					) : (
 						<Signin />
