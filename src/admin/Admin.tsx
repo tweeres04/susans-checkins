@@ -22,6 +22,7 @@ import generatePracticeDates from './generatePracticeDates';
 import CheckinEntry from './CheckinEntry';
 import { Player } from './player';
 import hasSymptoms from './hasSymptoms';
+import useImages from './useImages';
 
 import generateCheckinEntry from './generateCheckinEntry';
 
@@ -47,26 +48,6 @@ function generateTestData(): CheckinEntry[] {
 }
 
 const testData = generateTestData();
-
-function useImages() {
-	const [images, setImages] = useState<{ uid: string; url: string }[] | []>([]);
-
-	useEffect(() => {
-		async function getImages() {
-			const res = await firebase.storage().ref('profile').listAll();
-			const images = await Promise.all(
-				res.items.map(async (ref) => ({
-					uid: ref.name,
-					url: await ref.getDownloadURL(),
-				}))
-			);
-			setImages(images);
-		}
-		getImages();
-	}, []);
-
-	return images;
-}
 
 const useStyles = makeStyles((theme) => ({
 	symptomsPresent: {
@@ -134,7 +115,7 @@ export default function Admin() {
 										component={LinkWithRef}
 										alignItems="flex-start"
 										key={`${uid}${timestampDate}`}
-										to={`/admin/${uid}`}
+										to={`/admin/players/${uid}`}
 										button
 									>
 										<ListItemAvatar>

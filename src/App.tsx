@@ -14,6 +14,7 @@ import {
 	IconButton,
 	Drawer,
 	List,
+	ListSubheader,
 	ListItem,
 	ListItemIcon,
 	ListItemText,
@@ -23,6 +24,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import PersonIcon from '@material-ui/icons/Person';
+import PeopleIcon from '@material-ui/icons/People';
 
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -31,6 +33,7 @@ const Admin = React.lazy(() => import('./admin/Admin'));
 const Signin = React.lazy(() => import('./Signin'));
 const Player = React.lazy(() => import('./admin/PlayerView'));
 const Profile = React.lazy(() => import('./Profile'));
+const Players = React.lazy(() => import('./admin/Players'));
 
 const useStyles = makeStyles((theme) => ({
 	appBarSpacer: theme.mixins.toolbar,
@@ -59,10 +62,15 @@ const LinkWithRef = React.forwardRef((props, ref) => (
 	<Link ref={ref} {...props} />
 ));
 
+function useIsAdmin() {
+	return true;
+}
+
 export default function App() {
 	const classes = useStyles();
 	const [user, loading, error] = useAuthState(firebase.auth());
 	const [drawerOpen, setDrawerOpen] = useState(false);
+	const isAdmin = useIsAdmin();
 
 	return (
 		<Suspense
@@ -93,7 +101,8 @@ export default function App() {
 							<CheckinForm path="/" />
 							<Success path="/success" />
 							<Symptoms path="/symptoms" />
-							<Player path="/admin/:playerId" />
+							<Players path="/admin/players" />
+							<Player path="/admin/players/:playerId" />
 							<Admin path="/admin" />
 							<Profile path="/profile" />
 						</Router>
@@ -126,18 +135,29 @@ export default function App() {
 						</ListItemIcon>
 						<ListItemText primary="Checkin" />
 					</ListItem>
-					<ListItem component={LinkWithRef} to="/admin" button>
-						<ListItemIcon>
-							<VerifiedUserIcon />
-						</ListItemIcon>
-						<ListItemText primary="Admin" />
-					</ListItem>
 					<ListItem component={LinkWithRef} to="/profile" button>
 						<ListItemIcon>
 							<PersonIcon />
 						</ListItemIcon>
 						<ListItemText primary="Profile" />
 					</ListItem>
+					{isAdmin && (
+						<>
+							<ListSubheader>Admin</ListSubheader>
+							<ListItem component={LinkWithRef} to="/admin" button>
+								<ListItemIcon>
+									<VerifiedUserIcon />
+								</ListItemIcon>
+								<ListItemText primary="Checkins" />
+							</ListItem>
+							<ListItem component={LinkWithRef} to="/admin/players" button>
+								<ListItemIcon>
+									<PeopleIcon />
+								</ListItemIcon>
+								<ListItemText primary="Players" />
+							</ListItem>
+						</>
+					)}
 				</List>
 			</Drawer>
 		</Suspense>
