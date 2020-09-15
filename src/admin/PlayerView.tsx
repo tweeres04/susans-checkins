@@ -5,6 +5,7 @@ import {
 	useDocumentDataOnce,
 	useCollectionDataOnce,
 } from 'react-firebase-hooks/firestore';
+import { useDownloadURL } from 'react-firebase-hooks/storage';
 
 import { Player } from './player';
 import CheckinEntry from './CheckinEntry';
@@ -52,7 +53,7 @@ export default function PlayerView({ playerId }: PlayerViewProps) {
 	const classes = useStyles();
 
 	const [
-		{ name, dob, notes, imageUrl } = {},
+		{ name, dob, notes } = {},
 		playerIsLoading,
 		playerError,
 	] = useDocumentDataOnce<Player>(
@@ -68,7 +69,11 @@ export default function PlayerView({ playerId }: PlayerViewProps) {
 		{ idField: 'uid' }
 	);
 
-	const errors = [playerError, checkinsError].filter(Boolean);
+	const [imageUrl] = useDownloadURL(
+		firebase.storage().ref(`profile/${playerId}`)
+	);
+
+	const errors = [playerError, checkinsError].filter(Boolean) as Error[];
 
 	return (
 		<>
