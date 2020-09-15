@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Link } from '@reach/router';
 
@@ -48,6 +48,26 @@ function generateTestData(): CheckinEntry[] {
 
 const testData = generateTestData();
 
+function useImages() {
+	const [images, setImages] = useState<{ uid: string; url: string }[] | []>([]);
+
+	useEffect(() => {
+		async function getImages() {
+			const res = await firebase.storage().ref('profile').listAll();
+			const images = await Promise.all(
+				res.items.map(async (ref) => ({
+					uid: ref.name,
+					url: await ref.getDownloadURL(),
+				}))
+			);
+			setImages(images);
+		}
+		getImages();
+	}, []);
+
+	return images;
+}
+
 const useStyles = makeStyles((theme) => ({
 	symptomsPresent: {
 		color: theme.palette.error.main,
@@ -76,12 +96,17 @@ export default function Admin() {
 		idField: 'uid',
 	});
 
+	const images = useImages();
+
 	const error = checkinsError || playersError;
 	const loading = playersLoading || checkinsLoading;
 
 	checkins = checkins.map((c) => ({
 		...c,
-		player: players.find((p) => c.uid === p.uid),
+		player: {
+			...(players.find((p) => c.uid === p.uid) as Player),
+			imageUrl: images.find((i) => i.uid === c.uid)?.url,
+		},
 	}));
 
 	return (
