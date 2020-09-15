@@ -1,71 +1,37 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import firebase from 'firebase/app';
+import React, { useRef } from 'react';
 
-import { debounce } from 'lodash';
+import { TextField, Grid, Typography, Button } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
-import { TextField, Grid, Typography } from '@material-ui/core';
+import usePlayerState from './usePlayerState';
 
-function usePlayerState() {
-	const { uid } = firebase.auth().currentUser;
-	const [playerState, setPlayerState] = useState({
-		name: '',
-		dob: '',
-		notes: '',
-		imageUrl: '',
-	});
-	const [isLoading, setIsLoading] = useState(true);
-
-	useEffect(() => {
-		firebase
-			.firestore()
-			.doc(`users/${uid}`)
-			.get()
-			.then((snapshot) => {
-				setPlayerState((playerState) => ({
-					...playerState,
-					...snapshot.data(),
-				}));
-				setIsLoading(false);
-			});
-	}, [uid]);
-
-	const syncPlayerStateToServer = useCallback(
-		function syncPlayerStateToServer(playerState) {
-			return firebase.firestore().doc(`users/${uid}`).update(playerState);
-		},
-		[uid]
-	);
-
-	const debouncedSyncPlayerStateToServer = useCallback(
-		debounce(syncPlayerStateToServer, 1000),
-		[]
-	);
-
-	function setProperty({
-		property,
-		value,
-	}: {
-		property: string;
-		value: string;
-	}) {
-		setPlayerState((playerState) => {
-			const newPlayerState = {
-				...playerState,
-				[property]: value,
-			};
-			debouncedSyncPlayerStateToServer.cancel();
-			debouncedSyncPlayerStateToServer(newPlayerState);
-			return newPlayerState;
-		});
-	}
-
-	return { ...playerState, setProperty, isLoading };
-}
+const useStyles = makeStyles((theme) => ({
+	image: {
+		width: '100%',
+	},
+	hidden: {
+		display: 'none',
+	},
+}));
 
 export default function Profile() {
-	const { name, dob, notes, setProperty, isLoading } = usePlayerState();
+	const classes = useStyles();
+	const {
+		playerState: { name, dob, notes },
+		setProperty,
+		imageUrl,
+		setImage,
+		isLoadingData,
+		isLoadingImage,
+	} = usePlayerState();
 
-	return isLoading ? null : (
+	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	function startFileUpload() {
+		fileInputRef.current!.click();
+	}
+
+	return isLoadingData ? null : (
 		<Grid container spacing={2}>
 			<Grid item xs={12}>
 				<Typography variant="h3">Profile</Typography>
@@ -107,6 +73,31 @@ export default function Profile() {
 						setProperty({ property: 'notes', value: event.target.value });
 					}}
 				/>
+			</Grid>
+			{isLoadingImage ||
+				(imageUrl && (
+					<Grid item xs={12}>
+						<img
+							src={imageUrl}
+							onClick={startFileUpload}
+							alt="Profile"
+							className={classes.image}
+						/>
+					</Grid>
+				))}
+			<Grid item xs={12}>
+				<input
+					type="file"
+					style={{ display: 'none' }}
+					ref={fileInputRef}
+					onChange={(e) => {
+						const file = e.target.files![0];
+						setImage(file);
+					}}
+				/>
+				<Button onClick={startFileUpload} variant="contained">
+					Upload profile image
+				</Button>
 			</Grid>
 		</Grid>
 	);

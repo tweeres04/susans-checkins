@@ -3,6 +3,7 @@ import firebase from 'firebase/app';
 import 'firebase/analytics';
 import 'firebase/auth';
 import 'firebase/firestore';
+import 'firebase/storage';
 
 export default function initializeFirebase() {
 	const firebaseConfig = {
