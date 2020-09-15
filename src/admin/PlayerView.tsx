@@ -16,9 +16,11 @@ import {
 	CardMedia,
 	Typography,
 	List,
+	ListItemIcon,
 	ListItem,
 	ListItemText,
 } from '@material-ui/core';
+import AssignmentIcon from '@material-ui/icons/Assignment';
 import { makeStyles } from '@material-ui/core/styles';
 import * as faker from 'faker';
 import generatePlayer from './generatePlayer';
@@ -101,6 +103,9 @@ export default function PlayerView({ playerId }: PlayerViewProps) {
 						const timestampDate = timestamp.toDate();
 						return (
 							<ListItem key={timestampDate}>
+								<ListItemIcon>
+									<AssignmentIcon />
+								</ListItemIcon>
 								<ListItemText
 									primary={timestampDate.toLocaleString()}
 									secondary={
