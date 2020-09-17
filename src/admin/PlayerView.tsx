@@ -1,6 +1,8 @@
 import React from 'react';
 import firebase from 'firebase/app';
 
+import differenceInYears from 'date-fns/differenceInYears';
+
 import {
 	useDocumentDataOnce,
 	useCollectionDataOnce,
@@ -90,7 +92,10 @@ export default function PlayerView({ playerId }: PlayerViewProps) {
 					<CardContent>
 						<CardMedia image={imageUrl} className={classes.playerImage} />
 						<Typography variant="h3">{name}</Typography>
-						<Typography variant="h6">{dob}</Typography>
+						<Typography variant="h6">Birthday: {dob}</Typography>
+						<Typography>
+							{differenceInYears(new Date(), new Date(dob))} years old
+						</Typography>
 						<Typography>{notes}</Typography>
 					</CardContent>
 				</Card>
