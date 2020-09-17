@@ -4,6 +4,7 @@ import { TextField, Grid, Typography, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 import usePlayerState from './usePlayerState';
+import usePlayerImage from './usePlayerImage';
 
 const useStyles = makeStyles((theme) => ({
 	image: {
@@ -19,11 +20,9 @@ export default function Profile() {
 	const {
 		playerState: { name, dob, notes },
 		setProperty,
-		imageUrl,
-		setImage,
-		isLoadingData,
-		isLoadingImage,
+		isLoading: isLoadingData,
 	} = usePlayerState();
+	const { imageUrl, setImage, isLoading: isLoadingImage } = usePlayerImage();
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
 

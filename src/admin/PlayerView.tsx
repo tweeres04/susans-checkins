@@ -107,7 +107,7 @@ export default function PlayerView({ playerId }: PlayerViewProps) {
 						const symptomsPresent = checkinSymptoms.length > 0;
 						const timestampDate = timestamp.toDate();
 						return (
-							<ListItem key={timestampDate}>
+							<ListItem key={timestampDate.toISOString()}>
 								<ListItemIcon>
 									<AssignmentIcon />
 								</ListItemIcon>
