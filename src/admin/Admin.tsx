@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import { Link } from '@reach/router';
+
+import { startOfDay, endOfDay, formatISO, parseISO } from 'date-fns';
 
 import firebase from 'firebase/app';
 import { useCollectionDataOnce } from 'react-firebase-hooks/firestore';
@@ -11,6 +13,7 @@ import {
 	ListItemText,
 	Avatar,
 	ListItemAvatar,
+	TextField,
 } from '@material-ui/core';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -53,6 +56,9 @@ const useStyles = makeStyles((theme) => ({
 	symptomsPresent: {
 		color: theme.palette.error.main,
 	},
+	datepicker: {
+		padding: theme.spacing(2, 0),
+	},
 }));
 
 const LinkWithRef = React.forwardRef((props, ref) => (
@@ -61,6 +67,11 @@ const LinkWithRef = React.forwardRef((props, ref) => (
 
 export default function Admin() {
 	const classes = useStyles();
+	const [queryDate, setQueryDate] = useState(
+		formatISO(new Date(), { representation: 'date' })
+	);
+
+	const queryDateDate = parseISO(queryDate);
 
 	let [checkins = [], checkinsLoading, checkinsError] = useCollectionDataOnce<
 		CheckinEntry
@@ -68,6 +79,8 @@ export default function Admin() {
 		firebase
 			.firestore()
 			.collectionGroup('checkins')
+			.where('timestamp', '>=', startOfDay(queryDateDate))
+			.where('timestamp', '<=', endOfDay(queryDateDate))
 			.orderBy('timestamp', 'desc')
 	);
 
@@ -99,52 +112,68 @@ export default function Admin() {
 				</>
 			) : (
 				loading || (
-					<List>
-						{checkins.map(
-							({
-								uid,
-								player: { name = 'Unnamed player', imageUrl } = {},
-								checkin,
-								timestamp,
-							}) => {
-								const checkinSymptoms = hasSymptoms(checkin);
-								const symptomsPresent = checkinSymptoms.length > 0;
-								const timestampDate = timestamp.toDate();
-								return (
-									<ListItem
-										component={LinkWithRef}
-										alignItems="flex-start"
-										key={`${uid}${timestampDate}`}
-										to={`/admin/players/${uid}`}
-										button
-									>
-										<ListItemAvatar>
-											<Avatar alt={name} src={imageUrl} />
-										</ListItemAvatar>
-										<ListItemText
-											primary={name}
-											secondary={
-												<>
-													<div>{timestampDate.toLocaleString()}</div>
-													<div>
-														{symptomsPresent
-															? `Symptoms: ${checkinSymptoms.join(', ')}`
-															: 'No symptoms'}
-													</div>
-												</>
-											}
-											secondaryTypographyProps={{
-												component: 'div',
-												className: symptomsPresent
-													? classes.symptomsPresent
-													: undefined,
-											}}
-										/>
-									</ListItem>
-								);
-							}
-						)}
-					</List>
+					<>
+						<TextField
+							className={classes.datepicker}
+							fullWidth
+							value={queryDate}
+							onChange={(e) => {
+								setQueryDate(e.target.value);
+							}}
+							type="date"
+							InputLabelProps={{
+								shrink: true,
+							}}
+						/>
+
+						{checkins.length < 1 && <p>No checkins. Try another date.</p>}
+						<List>
+							{checkins.map(
+								({
+									uid,
+									player: { name = 'Unnamed player', imageUrl } = {},
+									checkin,
+									timestamp,
+								}) => {
+									const checkinSymptoms = hasSymptoms(checkin);
+									const symptomsPresent = checkinSymptoms.length > 0;
+									const timestampDate = timestamp.toDate();
+									return (
+										<ListItem
+											component={LinkWithRef}
+											alignItems="flex-start"
+											key={`${uid}${timestampDate}`}
+											to={`/admin/players/${uid}`}
+											button
+										>
+											<ListItemAvatar>
+												<Avatar alt={name} src={imageUrl} />
+											</ListItemAvatar>
+											<ListItemText
+												primary={name}
+												secondary={
+													<>
+														<div>{timestampDate.toLocaleString()}</div>
+														<div>
+															{symptomsPresent
+																? `Symptoms: ${checkinSymptoms.join(', ')}`
+																: 'No symptoms'}
+														</div>
+													</>
+												}
+												secondaryTypographyProps={{
+													component: 'div',
+													className: symptomsPresent
+														? classes.symptomsPresent
+														: undefined,
+												}}
+											/>
+										</ListItem>
+									);
+								}
+							)}
+						</List>
+					</>
 				)
 			)}
 		</>
