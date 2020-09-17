@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import firebase from 'firebase/app';
 
 import differenceInYears from 'date-fns/differenceInYears';
@@ -7,7 +7,6 @@ import {
 	useDocumentDataOnce,
 	useCollectionDataOnce,
 } from 'react-firebase-hooks/firestore';
-import { useDownloadURL } from 'react-firebase-hooks/storage';
 
 import { Player } from './player';
 import CheckinEntry from './CheckinEntry';
@@ -29,6 +28,8 @@ import generatePlayer from './generatePlayer';
 import generatePracticeDates from './generatePracticeDates';
 import generateCheckinEntry from './generateCheckinEntry';
 import hasSymptoms from './hasSymptoms';
+import usePlayerImage from '../usePlayerImage';
+import useIsAdmin from '../useIsAdmin';
 
 const testDates = generatePracticeDates();
 const testPlayer = generatePlayer();
@@ -55,6 +56,8 @@ type PlayerViewProps = {
 
 export default function PlayerView({ playerId }: PlayerViewProps) {
 	const classes = useStyles();
+	const isAdmin = useIsAdmin();
+	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const [
 		{ name, dob, notes } = {},
@@ -73,9 +76,7 @@ export default function PlayerView({ playerId }: PlayerViewProps) {
 		{ idField: 'uid' }
 	);
 
-	const [imageUrl] = useDownloadURL(
-		firebase.storage().ref(`profile/${playerId}`)
-	);
+	const { imageUrl, setImage } = usePlayerImage(playerId);
 
 	const errors = [playerError, checkinsError].filter(Boolean) as Error[];
 
@@ -90,7 +91,24 @@ export default function PlayerView({ playerId }: PlayerViewProps) {
 			{playerIsLoading || (
 				<Card>
 					<CardContent>
-						<CardMedia image={imageUrl} className={classes.playerImage} />
+						<input
+							type="file"
+							style={{ display: 'none' }}
+							ref={fileInputRef}
+							onChange={(e) => {
+								const file = e.target.files![0];
+								setImage(file);
+							}}
+						/>
+						<CardMedia
+							image={imageUrl}
+							className={classes.playerImage}
+							onClick={() => {
+								if (isAdmin) {
+									fileInputRef.current!.click();
+								}
+							}}
+						/>
 						<Typography variant="h3">{name}</Typography>
 						<Typography variant="h6">Birthday: {dob}</Typography>
 						<Typography>

@@ -28,6 +28,8 @@ import PeopleIcon from '@material-ui/icons/People';
 
 import { makeStyles } from '@material-ui/core/styles';
 
+import useIsAdmin from './useIsAdmin';
+
 const CheckinForm = React.lazy(() => import('./CheckinForm/CheckinForm'));
 const Admin = React.lazy(() => import('./admin/Admin'));
 const Signin = React.lazy(() => import('./Signin'));
@@ -61,10 +63,6 @@ function Symptoms() {
 const LinkWithRef = React.forwardRef((props, ref) => (
 	<Link ref={ref} {...props} />
 ));
-
-function useIsAdmin() {
-	return true;
-}
 
 export default function App() {
 	const classes = useStyles();

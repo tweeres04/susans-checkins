@@ -4,7 +4,7 @@ import { TextField, Grid, Typography, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 import usePlayerState from './usePlayerState';
-import usePlayerImage from './usePlayerImage';
+import usePlayerImage from '../usePlayerImage';
 
 const useStyles = makeStyles((theme) => ({
 	image: {
