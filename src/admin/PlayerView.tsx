@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useContext, useRef } from 'react';
 import firebase from 'firebase/app';
 
 import differenceInYears from 'date-fns/differenceInYears';
@@ -30,6 +30,7 @@ import generateCheckinEntry from './generateCheckinEntry';
 import hasSymptoms from './hasSymptoms';
 import usePlayerImage from '../usePlayerImage';
 import useIsAdmin from '../useIsAdmin';
+import TeamContext from '../TeamContext';
 
 const testDates = generatePracticeDates();
 const testPlayer = generatePlayer();
@@ -57,6 +58,7 @@ type PlayerViewProps = {
 export default function PlayerView({ playerId }: PlayerViewProps) {
 	const classes = useStyles();
 	const isAdmin = useIsAdmin();
+	const team = useContext(TeamContext);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const [
@@ -64,7 +66,7 @@ export default function PlayerView({ playerId }: PlayerViewProps) {
 		playerIsLoading,
 		playerError,
 	] = useDocumentDataOnce<Player>(
-		firebase.firestore().doc(`users/${playerId}`)
+		firebase.firestore().doc(`teams/${team}/users/${playerId}`)
 	);
 
 	const [
@@ -72,7 +74,7 @@ export default function PlayerView({ playerId }: PlayerViewProps) {
 		checkinsIsLoading,
 		checkinsError,
 	] = useCollectionDataOnce<CheckinEntry>(
-		firebase.firestore().collection(`users/${playerId}/checkins`),
+		firebase.firestore().collection(`teams/${team}/users/${playerId}/checkins`),
 		{ idField: 'uid' }
 	);
 

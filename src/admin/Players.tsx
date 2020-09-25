@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from '@reach/router';
 
 import firebase from 'firebase/app';
@@ -12,6 +12,8 @@ import {
 	Avatar,
 } from '@material-ui/core';
 
+import TeamContext from '../TeamContext';
+
 import { Player } from './player';
 import useImages from './useImages';
 
@@ -20,8 +22,9 @@ const LinkWithRef = React.forwardRef((props, ref) => (
 ));
 
 export default function Players() {
+	const team = useContext(TeamContext);
 	const [players = [], playersLoading] = useCollectionDataOnce<Player>(
-		firebase.firestore().collection('users').orderBy('name'),
+		firebase.firestore().collection(`teams/${team}/users`).orderBy('name'),
 		{
 			idField: 'uid',
 		}

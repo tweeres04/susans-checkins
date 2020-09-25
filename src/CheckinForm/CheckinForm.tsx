@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { navigate } from '@reach/router';
 
 import firebase from 'firebase/app';
 
-import { Typography, Button, CircularProgress } from '@material-ui/core';
+import { Typography, Button, CircularProgress, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Check as CheckIcon } from '@material-ui/icons';
 
 import { useForm } from 'react-hook-form';
 
 import YesNoRadio from './YesNoRadio';
+import TeamContext from '../TeamContext';
 
 type Checkin = Record<string, 'yes' | 'no'>;
 
@@ -17,22 +18,6 @@ const useStyles = makeStyles((theme) => ({
 	list: { listStyle: 'none', paddingLeft: 0 },
 	isSubmittingProgress: { marginLeft: theme.spacing(1) },
 }));
-
-async function onSubmit(checkin: Checkin) {
-	const { uid } = firebase.auth().currentUser;
-	const checkinsRef = firebase.firestore().collection(`users/${uid}/checkins`);
-	await checkinsRef.add({
-		checkin,
-		uid,
-		timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-	});
-	const hasSymptoms = Object.values(checkin).some((value) => value === 'yes');
-	if (hasSymptoms) {
-		navigate('/symptoms');
-	} else {
-		return navigate('/success');
-	}
-}
 
 export default function CheckinForm() {
 	const classes = useStyles();
@@ -44,8 +29,28 @@ export default function CheckinForm() {
 		formState: { isSubmitting },
 	} = useForm();
 
+	const team = useContext(TeamContext);
+
+	async function onSubmit(checkin: Checkin) {
+		const { uid } = firebase.auth().currentUser as User;
+		const checkinsRef = firebase
+			.firestore()
+			.collection(`teams/${team}/users/${uid}/checkins`);
+		await checkinsRef.add({
+			checkin,
+			uid,
+			timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+		});
+		const hasSymptoms = Object.values(checkin).some((value) => value === 'yes');
+		if (hasSymptoms) {
+			navigate('/symptoms');
+		} else {
+			return navigate('/success');
+		}
+	}
+
 	return (
-		<>
+		<Box paddingY={1}>
 			<Typography component="p" paragraph>
 				Are you experiencing any of the following symptoms?
 			</Typography>
@@ -176,6 +181,6 @@ export default function CheckinForm() {
 					Submit
 				</Button>
 			</form>
-		</>
+		</Box>
 	);
 }

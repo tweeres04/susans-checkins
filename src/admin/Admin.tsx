@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 
 import { Link } from '@reach/router';
 
@@ -19,6 +19,8 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 
 import random from 'random';
+
+import TeamContext from '../TeamContext';
 
 import generatePlayer from './generatePlayer';
 import generatePracticeDates from './generatePracticeDates';
@@ -67,6 +69,7 @@ const LinkWithRef = React.forwardRef((props, ref) => (
 
 export default function Admin() {
 	const classes = useStyles();
+	const team = useContext(TeamContext);
 	const [queryDate, setQueryDate] = useState(
 		formatISO(new Date(), { representation: 'date' })
 	);
@@ -86,7 +89,7 @@ export default function Admin() {
 
 	const [players = [], playersLoading, playersError] = useCollectionDataOnce<
 		Player
-	>(firebase.firestore().collection('users'), {
+	>(firebase.firestore().collection(`teams/${team}/users`), {
 		idField: 'uid',
 	});
 

@@ -29,6 +29,7 @@ import PeopleIcon from '@material-ui/icons/People';
 import { makeStyles } from '@material-ui/core/styles';
 
 import useIsAdmin from './useIsAdmin';
+import TeamContext from './TeamContext';
 
 const CheckinForm = React.lazy(() => import('./CheckinForm/CheckinForm'));
 const Admin = React.lazy(() => import('./admin/Admin'));
@@ -95,15 +96,17 @@ export default function App() {
 				<div className={classes.appBarSpacer}></div>
 				{!loading && !error ? (
 					user ? (
-						<Router>
-							<CheckinForm path="/" />
-							<Success path="/success" />
-							<Symptoms path="/symptoms" />
-							<Players path="/admin/players" />
-							<Player path="/admin/players/:playerId" />
-							<Admin path="/admin" />
-							<Profile path="/profile" />
-						</Router>
+						<TeamContext.Provider value="susans">
+							<Router>
+								<CheckinForm path="/" />
+								<Success path="/success" />
+								<Symptoms path="/symptoms" />
+								<Players path="/admin/players" />
+								<Player path="/admin/players/:playerId" />
+								<Admin path="/admin" />
+								<Profile path="/profile" />
+							</Router>
+						</TeamContext.Provider>
 					) : (
 						<Signin />
 					)

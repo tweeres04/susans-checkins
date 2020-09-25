@@ -1,10 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import firebase, { User } from 'firebase/app';
 
 import { debounce } from 'lodash';
 
+import TeamContext from '../TeamContext';
+
 export default function usePlayerState() {
 	const { uid } = firebase.auth().currentUser as User;
+	const team = useContext(TeamContext);
 
 	const [playerState, setPlayerState] = useState({
 		name: '',
@@ -16,7 +19,7 @@ export default function usePlayerState() {
 	useEffect(() => {
 		firebase
 			.firestore()
-			.doc(`users/${uid}`)
+			.doc(`teams/${team}/users/${uid}`)
 			.get()
 			.then((snapshot) => {
 				setPlayerState((playerState) => ({
@@ -27,13 +30,16 @@ export default function usePlayerState() {
 			.finally(() => {
 				setIsLoading(false);
 			});
-	}, [uid]);
+	}, [team, uid]);
 
 	const syncPlayerStateToServer = useCallback(
 		function syncPlayerStateToServer(playerState) {
-			return firebase.firestore().doc(`users/${uid}`).update(playerState);
+			return firebase
+				.firestore()
+				.doc(`teams/${team}/users/${uid}`)
+				.set(playerState);
 		},
-		[uid]
+		[team, uid]
 	);
 
 	const debouncedSyncPlayerStateToServer = useCallback(
