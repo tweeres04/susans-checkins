@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { navigate } from '@reach/router';
 
-import firebase from 'firebase/app';
+import firebase, { User } from 'firebase/app';
 
 import { Typography, Button, CircularProgress, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
